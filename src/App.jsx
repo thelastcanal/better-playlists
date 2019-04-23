@@ -29,10 +29,7 @@ function Filter() {
 function Playlist() {
     return (
         <div style={defaultStyle}>
-            <img
-                src="https://via.placeholder.com/150"
-                alt="placeholder-image"
-            />
+            <img src="https://via.placeholder.com/150" alt="placeholder" />
             <h3>Playlist Name</h3>
             <ul style={{ "text-align": "left" }}>
                 <li>Song 1</li>
