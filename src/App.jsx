@@ -69,15 +69,15 @@ function Filter() {
     );
 }
 
-function Playlist() {
+function Playlist({ info }) {
     return (
         <div style={defaultStyle}>
-            <img src="https://via.placeholder.com/150" alt="placeholder" />
-            <h3>Playlist Name</h3>
+            <img src={info.image} alt="placeholder" />
+            <h3>{info.name}</h3>
             <ul>
-                <li>Song 1</li>
-                <li>Song 1</li>
-                <li>Song 1</li>
+                {info.songs.map(song => (
+                    <li key={song.name}>{song.name}</li>
+                ))}
             </ul>
         </div>
     );
@@ -125,10 +125,9 @@ function App() {
 
                     <Filter />
                     <div>
-                        <Playlist />
-                        <Playlist />
-                        <Playlist />
-                        <Playlist />
+                        {serverData.user.playlists.map(playlist => (
+                            <Playlist info={playlist} key={playlist.name} />
+                        ))}
                     </div>
                 </header>
             ) : (

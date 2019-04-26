@@ -8,6 +8,10 @@
     color: #61dafb;
 }
 
+ul li {
+    text-align: left;
+}
+
 img {
     max-width: 100%;
 }
