@@ -26,7 +26,7 @@ let fakeServerData = {
                 songs: [
                     { name: "le song", duration: 13000 },
                     { name: "the song", duration: 44000 },
-                    { name: "sangen", duration: 12000 }
+                    { name: "sangen", duration: 94000 }
                 ]
             },
             {
@@ -34,7 +34,7 @@ let fakeServerData = {
                 image: "https://via.placeholder.com/150",
                 songs: [
                     { name: "le song", duration: 13000 },
-                    { name: "the song", duration: 44000 },
+                    { name: "the song", duration: 68000 },
                     { name: "wow new song", duration: 12000 }
                 ]
             },
@@ -44,7 +44,7 @@ let fakeServerData = {
                 songs: [
                     { name: "jingle jangle", duration: 13000 },
                     { name: "the song", duration: 44000 },
-                    { name: "sangen", duration: 12000 }
+                    { name: "sangen", duration: 5000 }
                 ]
             }
         ]
@@ -94,19 +94,22 @@ function App() {
         }, 1000);
     }, []);
 
-    function getTotalDuration() {
-        let allSongs = serverData.user.playlists.reduce(
-            (songs, eachPlaylist) => {
-                return songs.concat(eachPlaylist.songs);
-            },
-            []
-        );
+    function getTotalDuration(playlists) {
+        let allSongs = playlists.reduce((songs, eachPlaylist) => {
+            return songs.concat(eachPlaylist.songs);
+        }, []);
 
         let totalDuration = allSongs.reduce((sum, eachSong) => {
             return sum + eachSong.duration;
         }, 0);
 
         return Math.round(totalDuration / 60 / 60);
+    }
+
+    function filterPlaylists(playlists) {
+        return playlists.filter(playlist =>
+            playlist.name.toLowerCase().includes(filterString.toLowerCase())
+        );
     }
 
     return (
@@ -119,10 +122,18 @@ function App() {
 
                     <div>
                         <Aggregate
-                            count={serverData.user.playlists.length}
+                            count={
+                                filterPlaylists(serverData.user.playlists)
+                                    .length
+                            }
                             text="playlists"
                         />
-                        <Aggregate count={getTotalDuration()} text="hours" />
+                        <Aggregate
+                            count={getTotalDuration(
+                                filterPlaylists(serverData.user.playlists)
+                            )}
+                            text="hours"
+                        />
                     </div>
 
                     <Filter
@@ -133,18 +144,14 @@ function App() {
                     />
 
                     <div>
-                        {serverData.user.playlists
-                            .filter(playlist =>
-                                playlist.name
-                                    .toLowerCase()
-                                    .includes(filterString.toLowerCase())
-                            )
-                            .map(playlist => (
+                        {filterPlaylists(serverData.user.playlists).map(
+                            playlist => (
                                 <Playlist
                                     playlist={playlist}
                                     key={playlist.name}
                                 />
-                            ))}
+                            )
+                        )}
                     </div>
                 </header>
             ) : (
