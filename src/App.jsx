@@ -35,14 +35,14 @@ let fakeServerData = {
                 songs: [
                     { name: "le song", duration: 13000 },
                     { name: "the song", duration: 44000 },
-                    { name: "sangen", duration: 12000 }
+                    { name: "wow new song", duration: 12000 }
                 ]
             },
             {
                 name: "Wow",
                 image: "https://via.placeholder.com/150",
                 songs: [
-                    { name: "le song", duration: 13000 },
+                    { name: "jingle jangle", duration: 13000 },
                     { name: "the song", duration: 44000 },
                     { name: "sangen", duration: 12000 }
                 ]
@@ -51,31 +51,31 @@ let fakeServerData = {
     }
 };
 
-function Aggregate(props) {
+function Aggregate({ count, text }) {
     return (
         <div style={defaultStyle}>
             <h3 style={defaultStyle}>
-                {props && props.count} {props && props.text}
+                {count} {text}
             </h3>
         </div>
     );
 }
 
-function Filter() {
+function Filter({ string, handleChange }) {
     return (
         <div style={{ ...defaultStyle, margin: "0 0 50px 0" }}>
-            <input type="text" />
+            <input value={string} onChange={handleChange} type="text" />
         </div>
     );
 }
 
-function Playlist({ info }) {
+function Playlist({ playlist }) {
     return (
         <div style={defaultStyle}>
-            <img src={info.image} alt="placeholder" />
-            <h3>{info.name}</h3>
+            <img src={playlist.image} alt="placeholder" />
+            <h3>{playlist.name}</h3>
             <ul>
-                {info.songs.map(song => (
+                {playlist.songs.map(song => (
                     <li key={song.name}>{song.name}</li>
                 ))}
             </ul>
@@ -85,12 +85,13 @@ function Playlist({ info }) {
 
 function App() {
     const [serverData, setServerData] = useState(null);
+    const [filterString, setFilterString] = useState("");
 
     useEffect(() => {
         console.log("componentDidMount");
         setTimeout(() => {
             setServerData(fakeServerData);
-        }, 2000);
+        }, 1000);
     }, []);
 
     function getTotalDuration() {
@@ -115,6 +116,7 @@ function App() {
                     <h1 style={{ ...defaultStyle, margin: "0" }}>
                         {serverData.user.name}'s Playlists
                     </h1>
+
                     <div>
                         <Aggregate
                             count={serverData.user.playlists.length}
@@ -123,11 +125,26 @@ function App() {
                         <Aggregate count={getTotalDuration()} text="hours" />
                     </div>
 
-                    <Filter />
+                    <Filter
+                        string={filterString}
+                        handleChange={event =>
+                            setFilterString(event.target.value)
+                        }
+                    />
+
                     <div>
-                        {serverData.user.playlists.map(playlist => (
-                            <Playlist info={playlist} key={playlist.name} />
-                        ))}
+                        {serverData.user.playlists
+                            .filter(playlist =>
+                                playlist.name
+                                    .toLowerCase()
+                                    .includes(filterString.toLowerCase())
+                            )
+                            .map(playlist => (
+                                <Playlist
+                                    playlist={playlist}
+                                    key={playlist.name}
+                                />
+                            ))}
                     </div>
                 </header>
             ) : (
