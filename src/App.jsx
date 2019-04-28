@@ -88,9 +88,11 @@ function Playlist({ playlist }) {
 }
 
 function App() {
+    // NEW React state Hooks
     const [serverData, setServerData] = useState(null);
     const [filterString, setFilterString] = useState("");
 
+    // NEW React effect Hooks
     useEffect(() => {
         console.log("componentDidMount");
 
@@ -110,11 +112,30 @@ function App() {
                 .then(response => response.json())
                 .catch(error => console.log(error));
 
-            return response.items.map(playlist => {
+            return Promise.all(
+                response.items.map(async playlist => {
+                    return {
+                        name: playlist.name,
+                        image: playlist.images[0].url,
+                        songs: await getSongs(playlist.tracks.href)
+                    };
+                })
+            );
+        };
+
+        const getSongs = async trackListEndpoint => {
+            const response = await fetch(trackListEndpoint, {
+                headers: {
+                    Authorization: "Bearer " + accessToken
+                }
+            })
+                .then(response => response.json())
+                .catch(error => console.log(error));
+
+            return response.items.map(song => {
                 return {
-                    name: playlist.name,
-                    image: playlist.images[0].url,
-                    songs: []
+                    name: song.track.name,
+                    duration: song.track.duration_ms
                 };
             });
         };
@@ -143,11 +164,12 @@ function App() {
             });
         };
 
+        /*
+         * SPOTIFY API
+         * Checks for access token in url, if found, gets username and playlist
+         * data from Spotify API and updates app state via setServerData.
+         */
         accessToken ? getSpotifyData() : console.log("please sign in");
-
-        // setTimeout(() => {
-        //     setServerData(fakeServerData);
-        // }, 1000);
     }, []);
 
     function getTotalDuration(playlists) {
@@ -159,7 +181,7 @@ function App() {
             return sum + eachSong.duration;
         }, 0);
 
-        return Math.round(totalDuration / 60 / 60);
+        return Math.round(totalDuration / 1000 / 60 / 60);
     }
 
     function filterPlaylists(playlists) {
