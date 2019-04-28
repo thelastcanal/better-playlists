@@ -72,7 +72,11 @@ function Filter({ string, handleChange }) {
 function Playlist({ playlist }) {
     return (
         <div style={defaultStyle}>
-            <img src={playlist.image} alt="placeholder" />
+            <img
+                style={{ maxWidth: "250px" }}
+                src={playlist.image}
+                alt="placeholder"
+            />
             <h3>{playlist.name}</h3>
             <ul>
                 {playlist.songs.map(song => (
@@ -89,9 +93,61 @@ function App() {
 
     useEffect(() => {
         console.log("componentDidMount");
-        setTimeout(() => {
-            setServerData(fakeServerData);
-        }, 1000);
+
+        const accessToken = new URLSearchParams(window.location.search).get(
+            "access_token"
+        );
+
+        const getPlaylists = async () => {
+            const response = await fetch(
+                "https://api.spotify.com/v1/me/playlists",
+                {
+                    headers: {
+                        Authorization: "Bearer " + accessToken
+                    }
+                }
+            )
+                .then(response => response.json())
+                .catch(error => console.log(error));
+
+            return response.items.map(playlist => {
+                return {
+                    name: playlist.name,
+                    image: playlist.images[0].url,
+                    songs: []
+                };
+            });
+        };
+
+        const getUsername = async () => {
+            const response = await fetch("https://api.spotify.com/v1/me", {
+                headers: {
+                    Authorization: "Bearer " + accessToken
+                }
+            })
+                .then(response => response.json())
+                .catch(error => console.log(error));
+
+            return response.display_name;
+        };
+
+        const getSpotifyData = async () => {
+            const username = await getUsername();
+            const playlists = await getPlaylists();
+
+            setServerData({
+                user: {
+                    name: username,
+                    playlists: playlists
+                }
+            });
+        };
+
+        accessToken ? getSpotifyData() : console.log("please sign in");
+
+        // setTimeout(() => {
+        //     setServerData(fakeServerData);
+        // }, 1000);
     }, []);
 
     function getTotalDuration(playlists) {
@@ -156,7 +212,12 @@ function App() {
                 </header>
             ) : (
                 <header className="App-header">
-                    <p style={{ ...defaultStyle, margin: "0" }}>loading...</p>
+                    <h1 style={{ ...defaultStyle, margin: "0" }}>
+                        Better Playlists
+                    </h1>
+                    <a style={defaultStyle} href="http://localhost:8888/login">
+                        Sign in with Spotify
+                    </a>
                 </header>
             )}
         </div>
