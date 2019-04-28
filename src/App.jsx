@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
 
-let defaultStyle = {
-    color: "#fff",
-    padding: "0 20px",
-    display: "inline-block"
-};
-
+// eslint-disable-next-line
 let fakeServerData = {
     user: {
         name: "Sean",
@@ -24,8 +18,8 @@ let fakeServerData = {
                 name: "Another Playlist",
                 image: "https://via.placeholder.com/150",
                 songs: [
-                    { name: "le song", duration: 13000 },
-                    { name: "the song", duration: 44000 },
+                    { name: "le item", duration: 13000 },
+                    { name: "the item", duration: 44000 },
                     { name: "sangen", duration: 94000 }
                 ]
             },
@@ -33,9 +27,9 @@ let fakeServerData = {
                 name: "Yet more",
                 image: "https://via.placeholder.com/150",
                 songs: [
-                    { name: "le song", duration: 13000 },
-                    { name: "the song", duration: 68000 },
-                    { name: "wow new song", duration: 12000 }
+                    { name: "le item", duration: 13000 },
+                    { name: "the item", duration: 68000 },
+                    { name: "wow new item", duration: 12000 }
                 ]
             },
             {
@@ -43,7 +37,7 @@ let fakeServerData = {
                 image: "https://via.placeholder.com/150",
                 songs: [
                     { name: "jingle jangle", duration: 13000 },
-                    { name: "the song", duration: 44000 },
+                    { name: "the item", duration: 44000 },
                     { name: "sangen", duration: 5000 }
                 ]
             }
@@ -53,34 +47,39 @@ let fakeServerData = {
 
 function Aggregate({ count, text }) {
     return (
-        <div style={defaultStyle}>
-            <h3 style={defaultStyle}>
-                {count} {text}
-            </h3>
+        <div>
+            <span className="text-warning">
+                <strong>{count}</strong> {text}
+            </span>
         </div>
     );
 }
 
 function Filter({ string, handleChange }) {
     return (
-        <div style={{ ...defaultStyle, margin: "0 0 50px 0" }}>
-            <input value={string} onChange={handleChange} type="text" />
+        <div>
+            <input
+                value={string}
+                onChange={handleChange}
+                type="text"
+                placeholder="Search"
+            />
         </div>
     );
 }
 
 function Playlist({ playlist }) {
     return (
-        <div style={defaultStyle}>
+        <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
             <img
-                style={{ maxWidth: "250px" }}
+                className="img-fluid mb-3"
                 src={playlist.image}
                 alt="placeholder"
             />
-            <h3>{playlist.name}</h3>
-            <ul>
-                {playlist.songs.map(song => (
-                    <li key={song.name}>{song.name}</li>
+            <h4 className="mb-3">{playlist.name}</h4>
+            <ul style={{ paddingLeft: "1.85rem" }}>
+                {playlist.songs.slice(0, 3).map(item => (
+                    <li key={item.name}>{item.name}</li>
                 ))}
             </ul>
         </div>
@@ -132,10 +131,10 @@ function App() {
                 .then(response => response.json())
                 .catch(error => console.log(error));
 
-            return response.items.map(song => {
+            return response.items.map(item => {
                 return {
-                    name: song.track.name,
-                    duration: song.track.duration_ms
+                    name: item.track.name,
+                    duration: item.track.duration_ms
                 };
             });
         };
@@ -191,37 +190,39 @@ function App() {
     }
 
     return (
-        <div className="App">
+        <div className="App container">
             {serverData ? (
-                <header className="App-header">
-                    <h1 style={{ ...defaultStyle, margin: "0" }}>
-                        {serverData.user.name}'s Playlists
-                    </h1>
+                <div>
+                    <header className="App-header mb-5">
+                        <h1 className="my-5 display-4">
+                            {serverData.user.name}'s Playlists
+                        </h1>
 
-                    <div>
-                        <Aggregate
-                            count={
-                                filterPlaylists(serverData.user.playlists)
-                                    .length
+                        <div className="mb-3">
+                            <Aggregate
+                                count={
+                                    filterPlaylists(serverData.user.playlists)
+                                        .length
+                                }
+                                text="playlists"
+                            />
+                            <Aggregate
+                                count={getTotalDuration(
+                                    filterPlaylists(serverData.user.playlists)
+                                )}
+                                text="hours"
+                            />
+                        </div>
+
+                        <Filter
+                            string={filterString}
+                            handleChange={event =>
+                                setFilterString(event.target.value)
                             }
-                            text="playlists"
                         />
-                        <Aggregate
-                            count={getTotalDuration(
-                                filterPlaylists(serverData.user.playlists)
-                            )}
-                            text="hours"
-                        />
-                    </div>
+                    </header>
 
-                    <Filter
-                        string={filterString}
-                        handleChange={event =>
-                            setFilterString(event.target.value)
-                        }
-                    />
-
-                    <div>
+                    <div className="d-flex row">
                         {filterPlaylists(serverData.user.playlists).map(
                             playlist => (
                                 <Playlist
@@ -231,16 +232,16 @@ function App() {
                             )
                         )}
                     </div>
-                </header>
+                </div>
             ) : (
-                <header className="App-header">
-                    <h1 style={{ ...defaultStyle, margin: "0" }}>
-                        Better Playlists
-                    </h1>
-                    <a style={defaultStyle} href="http://localhost:8888/login">
+                <div>
+                    <header className="App-header mb-5">
+                        <h1 className="my-5 display-4">Better Playlists</h1>
+                    </header>
+                    <a href="http://localhost:8888/login">
                         Sign in with Spotify
                     </a>
-                </header>
+                </div>
             )}
         </div>
     );
